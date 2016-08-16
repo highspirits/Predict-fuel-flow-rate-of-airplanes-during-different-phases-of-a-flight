@@ -108,8 +108,26 @@ sort((temp/(sum(temp))*100), decreasing = T)
 #boruta.train1 = Boruta(FF ~ .-ACID -Flight_instance_ID -Year -Month -Day, data = train1)
 
 #Subset train1 data (folder1 all files data) to analyze "4Climb" elements only
+t.climb = subset(train1, train1$PH == '4Climb')
+
+#Remove ACID, Flight_instance_ID, Date and Time fields
+t.climb = train1.climb
+
+t.climb$ACID = NULL
+t.climb$Flight_instance_ID = NULL
+t.climb$Year = NULL
+t.climb$Month = NULL
+t.climb$Day = NULL
+t.climb$Hour = NULL
+t.climb$Minute = NULL
+t.climb$Second = NULL
+
+#Install xgboost package
+install.packages("xgboost")
+library(xgboost)
 
 
+  
 
 
 
