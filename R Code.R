@@ -111,8 +111,7 @@ sort((temp/(sum(temp))*100), decreasing = T)
 t.climb = subset(train1, train1$PH == '4Climb')
 
 #Remove ACID, Flight_instance_ID, Date and Time fields
-t.climb = train1.climb
-
+t.climb$PH = NULL
 t.climb$ACID = NULL
 t.climb$Flight_instance_ID = NULL
 t.climb$Year = NULL
@@ -122,12 +121,37 @@ t.climb$Hour = NULL
 t.climb$Minute = NULL
 t.climb$Second = NULL
 
+#Remove zero variance attributes
+t.climb = my.rem.zer.var(t.climb)
+#Count came to 169 variables
+
+#Take sample of 50000 elements only
+t.climb.sub = t.climb[sample(nrow(t.climb), 50000), ]
+#=============================================================================================================
+#Building Model
+#=============================================================================================================
 #Install xgboost package
 install.packages("xgboost")
 library(xgboost)
 
+#Read Test Data
+test = read.csv("C:/Sreedhar/Data Science Competitions/Crowd Analytix/Predict fuel flow rate of airplanes during different phases of a flight/Data/Test Data/CAX_Test.csv")
 
+#Subset to take only "Climb" data
+test.climb = subset(test, test$PH == 4)
+rm(test)
+
+#Save 'id' column
+submit <- test.climb[ ,c("id")]
   
+#Remove unwanted columns from test data
+test.climb <- subset(test.climb, select=c(colnames(t.climb.sub)))
+
+#xgboost with cross validaiton
+source_https("https://raw.githubusercontent.com/rohanrao91/Models_CV/master/XGBoost.R")
+
+#Building model
+model_xgb_1 <- XGBoost(t.climb.sub,y,test.climb,cv=5,objective="reg:linear",nrounds=500,max.depth=10,eta=0.1,colsample_bytree=0.5,seed=235,metric="rmse",importance=1)
 
 
 
